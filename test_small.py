@@ -157,10 +157,10 @@ def test_all():
 if __name__ == "__main__":
     # Uncomment these one at a time as you implement each algorithm:
 
-    # test_bubble_sort()
-    # test_selection_sort()
-    # test_insertion_sort()
-    # test_merge_sort()
+    test_bubble_sort()
+    test_selection_sort()
+    test_insertion_sort()
+    test_merge_sort()
 
     # Or run all tests at once:
     # test_all()

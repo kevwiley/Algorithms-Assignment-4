@@ -33,7 +33,19 @@ def bubble_sort(arr):
     # Hint: Use nested loops - outer loop for passes, inner loop for comparisons
     # Hint: Compare adjacent elements and swap if left > right
     
-    pass  # Delete this and write your code
+    #loops through items, can also check if working with dictionary
+    for i in range(len(arr)):
+        for j in range(0, len(arr) - i - 1):
+
+            #checks if the items are dictionaries and compares prices
+            if isinstance(arr[j], dict):
+                if arr[j]["price"] > arr[j + 1]["price"]:
+                    arr[j], arr[j + 1] = arr[j + 1], arr[j]
+            #compares item values normally
+            else:
+                if arr[j] > arr[j + 1]:
+                    arr[j], arr[j + 1] = arr[j + 1], arr[j]
+    return arr
 
 
 def selection_sort(arr):
@@ -55,7 +67,23 @@ def selection_sort(arr):
     # TODO: Implement selection sort
     # Hint: Find minimum element in unsorted portion, swap it with first unsorted element
     
-    pass  # Delete this and write your code
+    for i in range(len(arr)):
+        min_index = i
+
+        for j in range(i + 1, len(arr)):
+            #checks if items are in dictionaries and compares prices
+            if isinstance(arr[j], dict):
+                if arr[j]["price"] < arr[min_index]["price"]:
+                    min_index = j
+            #compares values
+            else:
+                if arr[j] < arr[min_index]:
+                    min_index = j
+
+        #swaps the smallest item into position
+        arr[i], arr[min_index] = arr[min_index], arr[i]
+
+    return arr
 
 
 def insertion_sort(arr):
@@ -77,7 +105,34 @@ def insertion_sort(arr):
     # TODO: Implement insertion sort
     # Hint: Start from second element, insert it into correct position in sorted portion
     
-    pass  # Delete this and write your code
+    for i in range(1, len(arr)):
+        key = arr[i]
+        j = i - 1
+
+        #gets price if dictionary
+        if isinstance(key, dict):
+            key_value = key["price"]
+        else:
+            key_value = key
+
+        #moves larger items right
+        while j >= 0:
+            #gets value of item being compared
+            if isinstance(arr[j], dict):
+                current_value = arr[j]["price"]
+            else:
+                current_value = arr[j]
+
+            if current_value > key_value:
+                arr[j + 1] = arr[j]
+                j -= 1
+            else:
+                break
+
+        #puts key into correct position
+        arr[j + 1] = key
+
+    return arr
 
 
 def merge_sort(arr):
@@ -101,8 +156,52 @@ def merge_sort(arr):
     # Hint: Recursive case - split array in half, sort each half, merge sorted halves
     # Hint: You'll need a helper function to merge two sorted arrays
     
-    pass  # Delete this and write your code
+    #makes sure the list has more than one element
+    if len(arr) > 1:
+        m = len(arr) // 2
 
+        #gets left and right side of data
+        l = arr[:m]
+        r = arr[m:]
+
+        merge_sort(l)
+        merge_sort(r)
+
+        i = j = k = 0
+
+        while i < len(l) and j < len(r):
+
+            #gets the values to compare
+            if isinstance(l[i], dict):
+                left_value = l[i]["price"]
+            else:
+                left_value = l[i]
+
+            if isinstance(r[j], dict):
+                right_value = r[j]["price"]
+            else:
+                right_value = r[j]
+
+            #equal items kept in original order
+            if left_value <= right_value:
+                arr[k] = l[i]
+                i += 1
+            else:
+                arr[k] = r[j]
+                j += 1
+            k += 1
+
+        #remaining elements are put into array
+        while i < len(l):
+            arr[k] = l[i]
+            i += 1
+            k += 1
+        while j < len(r):
+            arr[k] = r[j]
+            j += 1
+            k += 1
+
+    return arr
 
 # ============================================================================
 # PART 2: STABILITY DEMONSTRATION
@@ -132,19 +231,56 @@ def demonstrate_stability():
     # Hint: Or extract prices, sort them, and check if stable algorithms maintain original order
     # Hint: For stable sort: items with price 999 should stay in order (B before D)
     # Hint: For stable sort: items with price 1999 should stay in order (A before C before E)
-    
-    results = {
-        "bubble_sort": "Not tested",
-        "selection_sort": "Not tested", 
-        "insertion_sort": "Not tested",
-        "merge_sort": "Not tested"
-    }
-    
     # TODO: Test each algorithm and update results dictionary with "Stable" or "Unstable"
-    
+
+    #makes copies so each algorithm gets original list
+    bubble_products = products.copy()
+    selection_products = products.copy()
+    insertion_products = products.copy()
+    merge_products = products.copy()
+
+    #calls sorting functions
+    bubble_sort(bubble_products)
+    selection_sort(selection_products)
+    insertion_sort(insertion_products)
+    merge_sort(merge_products)
+
+    #sorts the products using each algorithm
+    bubble_sort(bubble_products)
+    selection_sort(selection_products)
+    insertion_sort(insertion_products)
+    merge_sort(merge_products)
+
+    #store the sorted results
+    sorted_products = {
+        "bubble_sort": bubble_products,
+        "selection_sort": selection_products,
+        "insertion_sort": insertion_products,
+        "merge_sort": merge_products
+    }
+
+    results = {}
+
+    #checks each sorting algorithm
+    for algorithm, products_sorted in sorted_products.items():
+
+        stable = True
+        #check neighboring products for same price and original position
+        for i in range(len(products_sorted) - 1):
+
+            if products_sorted[i]["price"] == products_sorted[i + 1]["price"]:
+                if products_sorted[i]["original_position"] > products_sorted[i + 1]["original_position"]:
+                    stable = False
+                    break
+
+        #save the result to results dictionary
+        if stable:
+            results[algorithm] = "Stable"
+        else:
+            results[algorithm] = "Not Stable"
+
     return results
-
-
+   
 # ============================================================================
 # PART 3: PERFORMANCE BENCHMARKING
 # ============================================================================
@@ -287,8 +423,9 @@ if __name__ == "__main__":
     
     # Uncomment these as you complete each part:
     
-    # test_sorting_correctness()
-    # benchmark_all_datasets()
-    # analyze_stability()
+    #test_sorting_correctness() #Assignment says to uses test_small for this instead of this function
+
+    benchmark_all_datasets()
+    analyze_stability()
     
     print("\n⚠ Uncomment the test functions in the main block to run benchmarks!")
